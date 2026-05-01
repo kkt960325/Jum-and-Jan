@@ -1,65 +1,65 @@
-import Image from "next/image";
+import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="relative flex flex-col min-h-[calc(100vh-5rem)] overflow-hidden bg-stone-950">
+
+      {/* Hero background image */}
+      <div
+        className="absolute inset-0 bg-cover bg-center transition-transform duration-[8s] ease-out scale-105"
+        style={{ backgroundImage: "url('/images/splash_hero.png')" }}
+      />
+
+      {/* Layered overlays: bottom gradient strong, top subtle */}
+      <div className="absolute inset-0 bg-gradient-to-t from-stone-950 via-stone-950/60 to-stone-950/20" />
+      <div className="absolute inset-0 bg-gradient-to-r from-stone-950/70 via-transparent to-transparent" />
+
+      {/* Noise texture */}
+      <div
+        className="absolute inset-0 opacity-[0.04] pointer-events-none"
+        style={{
+          backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'400\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'4\'/%3E%3C/filter%3E%3Crect width=\'400\' height=\'400\' filter=\'url(%23n)\'/%3E%3C/svg%3E")',
+          backgroundSize: '400px 400px',
+        }}
+      />
+
+      {/* Content */}
+      <div className="relative z-10 flex flex-col justify-end flex-1 max-w-7xl mx-auto w-full px-6 md:px-12 pb-16 md:pb-24 pt-20">
+
+        {/* Label */}
+        <p className="text-white/40 font-mono tracking-[0.35em] uppercase text-xs md:text-sm mb-5 animate-in fade-in duration-700">
+          Scientific Pairing · FlavorDB × Khymos
+        </p>
+
+        {/* Main heading */}
+        <h1 className="text-5xl sm:text-7xl md:text-8xl font-bold font-serif leading-none text-white tracking-tight mb-6 animate-in slide-in-from-bottom-6 duration-700">
+          Discover Your
+          <br />
+          <span className="italic font-light text-olive-300">Perfect Pair.</span>
+        </h1>
+
+        {/* Sub */}
+        <p className="text-white/60 text-base md:text-lg font-light max-w-md leading-relaxed mb-10 animate-in fade-in duration-700 delay-200">
+          7차원 풍미 벡터 분석으로 당신의 입맛에 꼭 맞는
+          <br className="hidden md:block" />
+          위스키와 완벽한 한식 페어링을 제안합니다.
+        </p>
+
+        {/* CTA */}
+        <div className="flex flex-col sm:flex-row gap-4 animate-in fade-in duration-700 delay-300">
+          <Link href="/taste-check">
+            <Button className="px-10 py-5 text-base shadow-2xl shadow-olive-900/30 bg-olive-700 hover:bg-olive-600 border-none">
+              맛의 지도 시작하기
+            </Button>
+          </Link>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+
+        {/* Bottom attribution */}
+        <p className="text-white/20 text-xs font-mono tracking-widest uppercase mt-12 animate-in fade-in duration-1000 delay-500">
+          Jum &amp; Jan — 위스키 × 한식 페어링
+        </p>
+      </div>
     </div>
   );
 }
