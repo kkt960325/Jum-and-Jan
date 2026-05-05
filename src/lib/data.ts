@@ -23,6 +23,7 @@ export interface Whiskey {
     dutyFreeUsd: number;
     bestBuyStrategy: string;
   };
+  priceCategory?: 'entry' | 'middle' | 'high-end'; // entry: <10만원 / middle: 10~30만원 / high-end: 30만원+
   trivia?: string[]; // 비하인드 스토리
 }
 
@@ -1934,7 +1935,145 @@ export const WHISKEY_DB: Whiskey[] = [
     image: '/images/glenmorangie-10.jpg',
     profileType: 'citrus_light', flavorVector: [0.03, 0.62, 0.65, 0.48, 0.58, 0.48, 0.52],
     compounds: ['linalool', 'esters', 'vanillin', 'isoamyl acetate'], aroma: ['floral', 'fruit', 'honey'], taste: ['delicate', 'sweet', 'fruity'],
-    abv: 46, recommendedDrink: 'Neat', priceSimulation: { dailyShot: 88000, gs25: 100000, cu: 98000, dutyFreeUsd: 42, bestBuyStrategy: '웨일스 위스키 유일한 표현. 데일리샷 픽업 추천.' } }
+    abv: 46, recommendedDrink: 'Neat', priceSimulation: { dailyShot: 88000, gs25: 100000, cu: 98000, dutyFreeUsd: 42, bestBuyStrategy: '웨일스 위스키 유일한 표현. 데일리샷 픽업 추천.' } },
+
+  // ══════════════════════════════════════════════════════════
+  // HIGH-END LUXURY (30만원 이상) — 15종 신규 추가
+  // ══════════════════════════════════════════════════════════
+  { id: 'springbank-25', name: '스프링뱅크 25년',
+    description: '캠벨타운 마지막 증류소 스프링뱅크의 쿼터 센추리. 25년 셰리·버번·럼 캐스크 배팅의 열대과일·소금기·달콤한 오크가 복잡하게 얽힌 궁극의 캠벨타운 표현.',
+    image: '/images/balvenie-12.jpg',
+    profileType: 'smooth_nutty', flavorVector: [0.18, 0.62, 0.68, 0.62, 0.40, 0.72, 0.82],
+    compounds: ['lactones', 'esters', 'vanillin', 'dimethyl sulfide', 'guaiacol'], aroma: ['tropical', 'sea', 'sherry'], taste: ['complex', 'sweet', 'briny'],
+    abv: 46, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 700000, gs25: 750000, cu: 740000, dutyFreeUsd: 380, bestBuyStrategy: '생산량이 극히 제한적. 위스키 경매(Whisky Auctioneer)나 전문 수입사 선착순 알림 등록 필수.' },
+    priceCategory: 'high-end' },
+
+  { id: 'dalmore-25', name: '달모어 25년',
+    description: '25년 셰리·마데이라·포트 캐스크 배팅의 달모어 최상위 표현. 오렌지 마멀레이드·다크 초콜릿·건포도·진저의 화려하고 복잡한 스페이사이드 럭셔리의 정점.',
+    image: '/images/macallan-range.jpg',
+    profileType: 'sweet_heavy', flavorVector: [0.05, 0.52, 0.82, 0.68, 0.32, 0.82, 0.88],
+    compounds: ['vanillin', 'lactones', 'furfural', 'tannin', 'eugenol'], aroma: ['orange', 'chocolate', 'sherry'], taste: ['rich', 'complex', 'sweet'],
+    abv: 42, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 600000, gs25: 650000, cu: 640000, dutyFreeUsd: 320, bestBuyStrategy: '달모어 공식 수입처 또는 갤러리아·신세계 주류 MD 특별 입고 시 구매. 면세점 판매가 매우 드문 편.' },
+    priceCategory: 'high-end' },
+
+  { id: 'balvenie-25-triple', name: '발베니 25년 트리플 우드',
+    description: '25년 버번·셰리·포트 캐스크 트리플 숙성. 꿀·바닐라·달콤한 건과일·다크 스파이스가 완벽하게 통합된 발베니 최정상. 장인 증류소의 25년 헌신이 담긴 한 병.',
+    image: '/images/balvenie-12.jpg',
+    profileType: 'sweet_heavy', flavorVector: [0.05, 0.55, 0.84, 0.72, 0.30, 0.80, 0.88],
+    compounds: ['vanillin', 'lactones', 'eugenol', 'furfural', 'tannin'], aroma: ['honey', 'vanilla', 'dried fruit'], taste: ['sweet', 'rich', 'spicy'],
+    abv: 48.1, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 450000, gs25: 490000, cu: 480000, dutyFreeUsd: 240, bestBuyStrategy: '발베니 코리아 공식 수입사 입고 알림 등록. 면세점 재고가 가끔 뜨므로 출국 일정이 있다면 최우선 체크.' },
+    priceCategory: 'high-end' },
+
+  { id: 'lagavulin-25', name: '라가불린 25년 스페셜 릴리즈',
+    description: '피트 몬스터 라가불린의 25년 숙성 한정판. 세월이 순화시킨 피트·스모크 위에 달콤한 셰리·바닐라·말린 과일이 화려하게 펼쳐지는, 아일라 위스키의 궁극적 완성.',
+    image: '/images/lagavulin-16.jpg',
+    profileType: 'peaty_bold', flavorVector: [0.88, 0.35, 0.32, 0.78, 0.22, 0.78, 0.90],
+    compounds: ['phenol', 'guaiacol', 'syringol', 'vanillin', 'lactones'], aroma: ['peat', 'smoke', 'sherry', 'iodine'], taste: ['massive', 'complex', 'sweet'],
+    abv: 51.9, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 700000, gs25: 750000, cu: 740000, dutyFreeUsd: 370, bestBuyStrategy: '디아지오 스페셜 릴리즈 연간 한정판. 국내 수입 수량이 수십 병 수준. 위스키 전문 수입사 예약 구매 필수.' },
+    priceCategory: 'high-end' },
+
+  { id: 'hakushu-18', name: '하쿠슈 18년',
+    description: '산토리 남알프스 숲속 증류소의 18년 숙성 프리미엄. 허브·풀잎·약한 피트·복숭아·배의 청량하고 복잡한 산림 풍미. 전 세계적 희귀 위스키로 국내 정가 구매는 로또 수준.',
+    image: '/images/nikka-yoichi.jpg',
+    profileType: 'citrus_light', flavorVector: [0.30, 0.70, 0.58, 0.55, 0.68, 0.60, 0.78],
+    compounds: ['linalool', 'esters', 'phenol', 'isoamyl acetate', 'vanillin'], aroma: ['herbs', 'peach', 'light smoke'], taste: ['fresh', 'complex', 'fruity'],
+    abv: 43, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 500000, gs25: 550000, cu: 540000, dutyFreeUsd: 270, bestBuyStrategy: '면세점 입고 시 즉시 구매. 국내 병행수입가는 정가의 2~3배. 일본 현지 구매가 가장 합리적이나 1인 1병 제한.' },
+    priceCategory: 'high-end' },
+
+  { id: 'redbreast-27', name: '레드브레스트 27년',
+    description: '아이리시 포트스틸 위스키의 절대 정점. 27년 올로로소·PX 셰리·버진 오크 배팅의 달콤한 건과일·다크 초콜릿·향신료·크리미한 포트스틸 오일리니스. 세계 최고 아이리시 중 하나.',
+    image: '/images/redbreast-12.jpg',
+    profileType: 'sweet_heavy', flavorVector: [0.05, 0.45, 0.86, 0.72, 0.30, 0.84, 0.92],
+    compounds: ['vanillin', 'lactones', 'furfural', 'eugenol', 'tannin'], aroma: ['dried fruit', 'chocolate', 'spice'], taste: ['rich', 'creamy', 'complex'],
+    abv: 54.6, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 600000, gs25: 650000, cu: 640000, dutyFreeUsd: 320, bestBuyStrategy: '아이리시 위스키 중 가장 구하기 어려운 표현 중 하나. 아이리쉬 디스틸러스 공식 수입사 출시 알림 등록 필수.' },
+    priceCategory: 'high-end' },
+
+  { id: 'port-ellen-40', name: '포트 엘런 40년 (디아지오 릴리즈)',
+    description: '1983년 폐쇄된 전설의 증류소 포트 엘런. 디아지오 스페셜 릴리즈로 간간이 출시되는 아일라의 성배. 40년 세월이 빚은 약품·아이오딘·바다·바닐라의 압도적 복합미. 병당 경매가 수천만 원.',
+    image: '/images/laphroaig-10.jpg',
+    profileType: 'peaty_bold', flavorVector: [0.82, 0.42, 0.30, 0.75, 0.28, 0.72, 0.92],
+    compounds: ['phenol', 'iodoform', 'guaiacol', 'vanillin', 'lactones'], aroma: ['medicinal', 'iodine', 'sea', 'vanilla'], taste: ['legendary', 'complex', 'smoky'],
+    abv: 50.5, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 3000000, gs25: 3200000, cu: 3100000, dutyFreeUsd: 1600, bestBuyStrategy: '경매 시장(Whisky Auctioneer, Bonhams)에서만 현실적으로 구매 가능. 투자 목적으로 접근하는 경우가 많음.' },
+    priceCategory: 'high-end' },
+
+  { id: 'brora-30', name: '브로라 30년 (디아지오 릴리즈)',
+    description: '1983년 폐쇄된 하이랜드의 잃어버린 증류소 브로라. 왁시·허비·가벼운 피트·오래된 셰리가 복잡하게 어우러진 30년의 기적. 포트 엘런과 함께 위스키 수집가의 성배.',
+    image: '/images/caol-ila-12.jpg',
+    profileType: 'peaty_bold', flavorVector: [0.55, 0.52, 0.52, 0.70, 0.40, 0.75, 0.88],
+    compounds: ['phenol', 'vanillin', 'lactones', 'waxy esters', 'guaiacol'], aroma: ['waxy', 'herbal', 'light peat'], taste: ['complex', 'unique', 'aged'],
+    abv: 48.1, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 2500000, gs25: 2700000, cu: 2600000, dutyFreeUsd: 1350, bestBuyStrategy: '국제 위스키 경매 시장에서만 구매 가능. 연간 디아지오 SR 출시 시 복권 수준의 경쟁.' },
+    priceCategory: 'high-end' },
+
+  { id: 'dalmore-king-alexander', name: '달모어 킹 알렉산더 III',
+    description: '6가지 캐스크(버번·셰리·만사니야·포트·마데이라·카베르네 소비뇽) 배팅의 달모어 플래그십. 오렌지·체리·초콜릿·말린 과일·계피·바닐라의 왕실 같은 풍요로운 복합미.',
+    image: '/images/macallan-range.jpg',
+    profileType: 'sweet_heavy', flavorVector: [0.05, 0.58, 0.82, 0.68, 0.38, 0.80, 0.86],
+    compounds: ['vanillin', 'lactones', 'tannin', 'anthocyanins', 'eugenol'], aroma: ['orange', 'cherry', 'chocolate'], taste: ['regal', 'complex', 'sweet'],
+    abv: 40, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 380000, gs25: 420000, cu: 410000, dutyFreeUsd: 200, bestBuyStrategy: '백화점 주류 매장에서 정가 구매 가능. 면세점 재고도 종종 있으니 출국 시 체크.' },
+    priceCategory: 'high-end' },
+
+  { id: 'glenfarclas-30', name: '글렌파클라스 30년',
+    description: '독립 가족 경영 증류소 글렌파클라스의 30년 올로로소 셰리 캐스크 숙성. 짙은 건과일·다크 초콜릿·오크·생강의 압도적 셰리 풍미. 합리적 가격의 하이엔드 셰리 위스키.',
+    image: '/images/glenfarclas-105.jpg',
+    profileType: 'sweet_heavy', flavorVector: [0.05, 0.38, 0.80, 0.72, 0.18, 0.84, 0.88],
+    compounds: ['vanillin', 'tannin', 'lactones', 'furfural', 'eugenol'], aroma: ['dark fruit', 'chocolate', 'sherry'], taste: ['rich', 'sherried', 'warming'],
+    abv: 43, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 400000, gs25: 440000, cu: 430000, dutyFreeUsd: 210, bestBuyStrategy: '독립 가족 경영으로 가격이 상대적으로 합리적. 전문 수입사 직수입 재고를 노리면 정가 구매 가능.' },
+    priceCategory: 'high-end' },
+
+  { id: 'bowmore-25', name: '보모어 25년',
+    description: '25년 셰리·버번 캐스크 배팅의 보모어 최정상. 열대과일(파인애플·망고)·피트·셰리·바다 소금이 25년 세월 속에 완벽히 통합된 아일라의 여왕. 보모어 특유의 열대과일 노트가 극대화.',
+    image: '/images/bowmore-18.jpg',
+    profileType: 'peaty_bold', flavorVector: [0.48, 0.58, 0.64, 0.62, 0.42, 0.74, 0.84],
+    compounds: ['phenol', 'esters', 'isoamyl acetate', 'vanillin', 'lactones'], aroma: ['tropical', 'peat', 'sherry', 'sea'], taste: ['balanced', 'complex', 'sweet'],
+    abv: 43, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 450000, gs25: 490000, cu: 480000, dutyFreeUsd: 240, bestBuyStrategy: '보모어 25년은 산토리 인수 후 품질이 더욱 향상됐다는 평. 국내 수입 물량이 제한적이므로 전문 주류 판매처에서 선예약.' },
+    priceCategory: 'high-end' },
+
+  { id: 'yamazaki-25', name: '야마자키 25년',
+    description: '산토리 최고급 싱글 몰트의 정점. 25년 미즈나라·셰리·버번 캐스크 배팅의 오래된 오크·건과일·샌달우드·꽃향기의 일본 위스키 궁극. 경매가 수천만 원, 소장 가치 최상위.',
+    image: '/images/yamazaki-12.jpg',
+    profileType: 'sweet_heavy', flavorVector: [0.08, 0.62, 0.82, 0.72, 0.50, 0.82, 0.94],
+    compounds: ['vanillin', 'lactones', 'eugenol', 'linalool', 'furfural'], aroma: ['sandalwood', 'dried fruit', 'floral'], taste: ['ultimate', 'complex', 'elegant'],
+    abv: 43, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 3000000, gs25: 3200000, cu: 3100000, dutyFreeUsd: 1600, bestBuyStrategy: '국내 정가 구매 불가 수준. 경매 시장 또는 일본 현지 면세점(1인 1병 제한)이 유일한 현실적 루트.' },
+    priceCategory: 'high-end' },
+
+  { id: 'karuizawa-1985', name: '카루이자와 1985 (빈티지)',
+    description: '2000년 폐쇄된 일본 카루이자와 증류소의 1985년 빈티지. 극소량 남은 현존 최고가 일본 위스키 중 하나. 오래된 셰리·숲의 이슬·향신료·오래된 책의 향. 투자 가치 1억 원 이상.',
+    image: '/images/yamazaki-12.jpg',
+    profileType: 'sweet_heavy', flavorVector: [0.10, 0.58, 0.78, 0.76, 0.45, 0.86, 0.94],
+    compounds: ['vanillin', 'tannin', 'lactones', 'eugenol', 'furfural'], aroma: ['aged sherry', 'forest', 'spice'], taste: ['legendary', 'ethereal', 'complex'],
+    abv: 57.3, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 10000000, gs25: 11000000, cu: 10500000, dutyFreeUsd: 5500, bestBuyStrategy: '경매 시장(Bonhams, Christie\'s, Whisky Auctioneer)에서만 구매 가능. 빈티지·캐스크 번호에 따라 가격 천차만별.' },
+    priceCategory: 'high-end' },
+
+  { id: 'glenfarclas-40', name: '글렌파클라스 40년',
+    description: '40년 올로로소 셰리 캐스크의 정점. 극도로 응축된 다크 체리·다크 초콜릿·오래된 오크·가죽의 세계. 가족 경영 독립 증류소가 지켜온 40년의 시간. 합리적 럭셔리의 최종 단계.',
+    image: '/images/glenfarclas-105.jpg',
+    profileType: 'sweet_heavy', flavorVector: [0.05, 0.35, 0.75, 0.82, 0.15, 0.88, 0.92],
+    compounds: ['vanillin', 'tannin', 'lactones', 'phenol', 'furfural'], aroma: ['dark cherry', 'leather', 'old oak'], taste: ['concentrated', 'elegant', 'ancient'],
+    abv: 43, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 800000, gs25: 860000, cu: 840000, dutyFreeUsd: 430, bestBuyStrategy: '가족 경영으로 타 40년 위스키 대비 합리적 가격 유지. 국내 글렌파클라스 수입사 직접 연락으로 재고 확인.' },
+    priceCategory: 'high-end' },
+
+  { id: 'midleton-very-rare', name: '미들턴 베리 레어 2024',
+    description: '아이리시 위스키의 왕관. 매년 마스터 디스틸러가 손수 블렌딩하는 미들턴 포트스틸 싱글 빈티지. 크리미한 포트스틸 오일·바닐라·열대과일·신선한 오크의 아이리시 프리미엄 최정상.',
+    image: '/images/redbreast-12.jpg',
+    profileType: 'smooth_nutty', flavorVector: [0.05, 0.58, 0.74, 0.62, 0.45, 0.78, 0.84],
+    compounds: ['vanillin', 'lactones', 'esters', 'linalool', 'isoamyl acetate'], aroma: ['creamy', 'tropical', 'vanilla'], taste: ['smooth', 'rich', 'elegant'],
+    abv: 40, recommendedDrink: 'Neat',
+    priceSimulation: { dailyShot: 320000, gs25: 350000, cu: 340000, dutyFreeUsd: 170, bestBuyStrategy: '매년 한정 수량 출시. 아이리시 디스틸러스 공식 수입사 사전 예약이 유일한 정가 구매 루트.' },
+    priceCategory: 'high-end' },
 ];
 
 // 2. 한식 데이터셋 (FlavorDB 및 Khymos 참고 매핑)

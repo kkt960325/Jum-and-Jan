@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { FlaskConical, GlassWater, Sparkles, Map, Zap, Microscope, ShoppingBag, CalendarCheck, Flame } from 'lucide-react';
 import { WHISKEY_DB } from '@/lib/data';
+import { WhiskeyPhotoCard } from '@/components/whiskey/WhiskeyPhotoCard';
 import { CompoundTags } from '@/components/ui/CompoundTags';
 import { FlavorMap, type MapWhiskey } from '@/components/flavor-map/FlavorMap';
 import { VectorRadarChart } from '@/components/ui/VectorRadarChart';
@@ -62,27 +63,28 @@ function StepHeader({ n, icon, title, sub }: { n: number; icon: React.ReactNode;
 }
 
 // ─── Price tier helpers ─────────────────────────────────
+// entry: <10만원 / middle: 10~30만원 / high-end: 30만원+
 
-type PriceTier = 'low' | 'medium' | 'high';
+type PriceTier = 'entry' | 'middle' | 'high-end';
 
 const PRICE_TIER_META: Record<PriceTier, { label: string; sublabel: string; style: string; ring: string }> = {
-  low:    { label: '입문용',    sublabel: '저가형 · ~5만원',   style: 'bg-emerald-700 text-white',    ring: 'ring-2 ring-emerald-700/25' },
-  medium: { label: '미들급',   sublabel: '중저가 · 5~10만원', style: 'bg-amber-700 text-white',      ring: '' },
-  high:   { label: '프리미엄', sublabel: '고가 · 10만원+',    style: 'bg-stone-800 text-cream-100',  ring: '' },
+  'entry':    { label: '입문용',    sublabel: 'Entry · ~10만원',      style: 'bg-emerald-700 text-white',                          ring: 'ring-2 ring-emerald-700/25' },
+  'middle':   { label: '미들급',   sublabel: 'Middle · 10~30만원',   style: 'bg-amber-700 text-white',                            ring: '' },
+  'high-end': { label: '하이엔드', sublabel: 'High-End · 30만원+',   style: 'bg-gradient-to-r from-amber-800 to-yellow-600 text-white', ring: 'ring-2 ring-yellow-600/30' },
 };
 
 function getTierMatches(
   userVector: FlavorVector,
   db: ReturnType<typeof WHISKEY_DB['slice']>,
 ): Array<{ whiskey: (typeof db)[number]; similarity: number; tier: PriceTier }> {
-  const buckets: Record<PriceTier, typeof db> = { low: [], medium: [], high: [] };
+  const buckets: Record<PriceTier, typeof db> = { 'entry': [], 'middle': [], 'high-end': [] };
   for (const w of db) {
     const price = w.priceSimulation?.dailyShot ?? 70000;
-    if (price <= 50000)       buckets.low.push(w);
-    else if (price <= 100000) buckets.medium.push(w);
-    else                      buckets.high.push(w);
+    if (price < 100000)       buckets['entry'].push(w);
+    else if (price < 300000)  buckets['middle'].push(w);
+    else                      buckets['high-end'].push(w);
   }
-  return (['low', 'medium', 'high'] as const).flatMap(tier => {
+  return (['entry', 'middle', 'high-end'] as const).flatMap(tier => {
     if (!buckets[tier].length) return [];
     const [best] = getTopMatches(userVector, buckets[tier], 1);
     return [{ whiskey: best.whiskey, similarity: best.similarity, tier }];
@@ -288,7 +290,7 @@ export default async function Recommendation(props: { searchParams: Promise<{ v?
         <StepHeader
           n={3} icon={<Zap className="w-5 h-5" />}
           title="가격대별 취향 매칭"
-          sub="입문용 · 미들급 · 프리미엄 — 각 가격대에서 당신의 풍미 벡터와 가장 가까운 위스키 1병씩"
+          sub="입문용(~10만원) · 미들급(10~30만원) · 하이엔드(30만원+) — 각 가격대 최고 벡터 매칭"
         />
         <div className="grid md:grid-cols-3 gap-6">
           {topMatches.map(({ whiskey, similarity, tier }) => {
@@ -300,26 +302,15 @@ export default async function Recommendation(props: { searchParams: Promise<{ v?
                 key={whiskey.id}
                 className={`bg-white border border-olive-900/10 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col relative overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl ${priceMeta.ring}`}
               >
-                {/* Photo strip */}
-                <div className="relative h-36 overflow-hidden shrink-0">
-                  {whiskey.image ? (
-                    <img src={whiskey.image} alt={whiskey.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full" style={{ background: gradient }} />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/75" />
-                  {/* Tier badge */}
-                  <div className="absolute top-3 right-3">
-                    <span className={`px-3 py-1 text-xs font-bold tracking-widest uppercase rounded-full shadow-sm ${priceMeta.style}`}>
-                      {priceMeta.label}
-                    </span>
-                  </div>
-                  {/* Whiskey name + sublabel over image */}
-                  <div className="absolute bottom-3 left-4 right-4">
-                    <p className="text-white/60 text-[10px] font-mono uppercase tracking-widest mb-0.5">{priceMeta.sublabel}</p>
-                    <h3 className="text-lg font-bold font-serif text-white leading-tight drop-shadow">{whiskey.name}</h3>
-                  </div>
-                </div>
+                <WhiskeyPhotoCard
+                  image={whiskey.image}
+                  gradient={gradient}
+                  name={whiskey.name}
+                  tierLabel={priceMeta.label}
+                  tierSublabel={priceMeta.sublabel}
+                  tierStyle={priceMeta.style}
+                  priceCategory={whiskey.priceCategory}
+                />
 
                 {/* Card body */}
                 <div className="p-5 flex flex-col flex-1">
@@ -349,7 +340,7 @@ export default async function Recommendation(props: { searchParams: Promise<{ v?
                     <span className="text-xs text-amber-700 font-semibold">취향 적합도 {simPct}%</span>
                   </div>
                   <Link href={`/whiskey/${whiskey.id}?v=${vectorParam}`} className="mt-auto">
-                    <Button variant={tier === 'low' ? 'primary' : 'outline'} className="w-full">
+                    <Button variant={tier === 'entry' ? 'primary' : 'outline'} className="w-full">
                       상세 정보 · Smart Action →
                     </Button>
                   </Link>
