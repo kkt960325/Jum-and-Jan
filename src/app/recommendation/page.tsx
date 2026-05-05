@@ -36,14 +36,6 @@ function FoodVectorBars({ vector, barColor }: { vector: number[]; barColor: stri
   );
 }
 
-// ─── Profile-type gradient for whiskeys without product photos ───────────────
-const PROFILE_GRADIENT: Record<string, string> = {
-  sweet_heavy:  'linear-gradient(135deg, #7c5c2e 0%, #b8860b 50%, #4a3520 100%)',
-  peaty_bold:   'linear-gradient(135deg, #1a1a1a 0%, #3d3d3d 50%, #1f2e1a 100%)',
-  citrus_light: 'linear-gradient(135deg, #2d4a1e 0%, #4a7c2f 50%, #1e3a28 100%)',
-  smooth_nutty: 'linear-gradient(135deg, #5c3d1e 0%, #8b6914 50%, #3d2b14 100%)',
-  spicy_woody:  'linear-gradient(135deg, #4a1e1e 0%, #8b3a14 50%, #2d1a0e 100%)',
-};
 
 // ─── Step Header ───────────────────────────────────────
 
@@ -305,7 +297,6 @@ export default async function Recommendation(props: { searchParams: Promise<{ v?
           {topMatches.map(({ whiskey, similarity, tier }) => {
             const priceMeta = PRICE_TIER_META[tier];
             const simPct = Math.round(similarity * 100);
-            const gradient = PROFILE_GRADIENT[whiskey.profileType] ?? PROFILE_GRADIENT.smooth_nutty;
             return (
               <div
                 key={whiskey.id}
@@ -313,7 +304,6 @@ export default async function Recommendation(props: { searchParams: Promise<{ v?
               >
                 <WhiskeyPhotoCard
                   image={whiskey.image}
-                  gradient={gradient}
                   name={whiskey.name}
                   tierLabel={priceMeta.label}
                   tierSublabel={priceMeta.sublabel}

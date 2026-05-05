@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ZoomIn } from 'lucide-react';
+import { BottleSilhouette } from './BottleSilhouette';
 
 interface Props {
   image?: string;
-  gradient: string;
   name: string;
   tierLabel: string;
   tierSublabel: string;
@@ -19,7 +19,7 @@ const PRICE_CATEGORY_BADGE: Record<string, string> = {
 };
 
 export function WhiskeyPhotoCard({
-  image, gradient, name, tierLabel, tierSublabel, tierStyle, priceCategory,
+  image, name, tierLabel, tierSublabel, tierStyle, priceCategory,
 }: Props) {
   const [open, setOpen] = useState(false);
 
@@ -30,19 +30,30 @@ export function WhiskeyPhotoCard({
         className="relative h-56 overflow-hidden shrink-0 cursor-zoom-in group/photo"
         onClick={() => image && setOpen(true)}
       >
-        {image ? (
-          <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #0a0805 0%, #1a1208 100%)' }}>
+        {/* Background + bottle */}
+        <div
+          className="absolute inset-0 flex items-center justify-center overflow-hidden"
+          style={{ background: 'linear-gradient(to bottom, #0a0805 0%, #1a1208 100%)' }}
+        >
+          {image ? (
             <img
               src={image}
               alt={name}
               className="absolute inset-0 w-full h-full object-contain object-center p-4 drop-shadow-[0_8px_24px_rgba(0,0,0,0.7)] transition-transform duration-500 group-hover/photo:scale-105"
             />
-          </div>
-        ) : (
-          <div className="w-full h-full" style={{ background: gradient }} />
-        )}
+          ) : (
+            <>
+              {/* Ambient amber floor glow */}
+              <div
+                className="absolute bottom-0 inset-x-0 h-20 pointer-events-none"
+                style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(200,133,12,0.16), transparent 70%)' }}
+              />
+              <BottleSilhouette className="relative z-10 h-48 w-auto transition-transform duration-500 group-hover/photo:scale-105" />
+            </>
+          )}
+        </div>
 
-        {/* dark vignette bottom */}
+        {/* Dark vignette bottom */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/80 pointer-events-none" />
 
         {/* Tier badge */}
@@ -57,7 +68,7 @@ export function WhiskeyPhotoCard({
           )}
         </div>
 
-        {/* Zoom hint */}
+        {/* Zoom hint (only when real image) */}
         {image && (
           <div className="absolute top-3 left-3 opacity-0 group-hover/photo:opacity-100 transition-opacity">
             <div className="bg-black/50 rounded-full p-1.5">
@@ -66,7 +77,7 @@ export function WhiskeyPhotoCard({
           </div>
         )}
 
-        {/* Name over image */}
+        {/* Name overlay */}
         <div className="absolute bottom-3 left-4 right-4 pointer-events-none">
           <p className="text-white/60 text-[10px] font-mono uppercase tracking-widest mb-0.5">{tierSublabel}</p>
           <h3 className="text-lg font-bold font-serif text-white leading-tight drop-shadow-lg">{name}</h3>
@@ -84,10 +95,7 @@ export function WhiskeyPhotoCard({
             transition={{ duration: 0.2 }}
             onClick={() => setOpen(false)}
           >
-            {/* backdrop */}
             <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" />
-
-            {/* bottle */}
             <motion.div
               className="relative z-10 max-w-sm w-full flex flex-col items-center"
               initial={{ scale: 0.85, opacity: 0, y: 20 }}
@@ -102,7 +110,6 @@ export function WhiskeyPhotoCard({
                 className="max-h-[70vh] w-auto object-contain drop-shadow-[0_20px_60px_rgba(0,0,0,0.9)]"
               />
               <p className="mt-4 text-white/70 font-serif text-base text-center">{name}</p>
-
               <button
                 onClick={() => setOpen(false)}
                 className="absolute -top-3 -right-3 bg-white/10 hover:bg-white/20 rounded-full p-2 transition-colors"

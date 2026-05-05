@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { BottleSilhouette } from '@/components/whiskey/BottleSilhouette';
 
 export interface MapWhiskey {
   id: string;
@@ -220,8 +221,15 @@ export function FlavorMap({ whiskeys, userPosition }: FlavorMapProps) {
                             />
                           </div>
                         ) : (
-                          <div className="h-14 flex items-center justify-center bg-stone-900/60">
-                            <span className="text-2xl opacity-40">🥃</span>
+                          <div
+                            className="h-28 flex items-center justify-center overflow-hidden relative"
+                            style={{ background: 'linear-gradient(to bottom, #0a0805, #1a1208)' }}
+                          >
+                            <div
+                              className="absolute bottom-0 inset-x-0 h-10 pointer-events-none"
+                              style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(200,133,12,0.14), transparent 70%)' }}
+                            />
+                            <BottleSilhouette className="relative z-10 h-20 w-auto" />
                           </div>
                         )}
                         <div className="px-3 py-2.5">
