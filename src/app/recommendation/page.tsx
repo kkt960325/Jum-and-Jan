@@ -253,7 +253,16 @@ export default async function Recommendation(props: { searchParams: Promise<{ v?
   const mapWhiskeys: MapWhiskey[] = WHISKEY_DB.map(w => {
     const pos = projectTo2D(w.flavorVector);
     const matchIdx = topMatches.findIndex(m => m.whiskey.id === w.id);
-    return { id: w.id, name: w.name, x: pos.x, y: pos.y, abv: w.abv, ...(matchIdx >= 0 ? { rank: matchIdx } : {}) };
+    return {
+      id: w.id,
+      name: w.name,
+      x: pos.x,
+      y: pos.y,
+      abv: w.abv,
+      image: w.image,
+      price: w.priceSimulation?.dailyShot,
+      ...(matchIdx >= 0 ? { rank: matchIdx, simPct: Math.round(topMatches[matchIdx].similarity * 100) } : {}),
+    };
   });
   const userPos = projectTo2D(userVector);
 

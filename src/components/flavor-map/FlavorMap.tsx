@@ -6,10 +6,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 export interface MapWhiskey {
   id: string;
   name: string;
-  x: number; // -1 to 1
-  y: number; // -1 to 1
-  rank?: number; // 0-based: top 3 matches (used only for highlight, no badge)
+  x: number;
+  y: number;
+  rank?: number;
   abv: number;
+  image?: string;
+  price?: number;
+  simPct?: number;
 }
 
 interface FlavorMapProps {
@@ -19,12 +22,20 @@ interface FlavorMapProps {
 
 const toP = (v: number) => `${((v + 1) / 2) * 88 + 6}%`;
 
-// Top-match highlight color (same for all — they're all "close to you")
 const MATCH_COLOR = '#a3c46a';
+const GOLD = '#D4AF37';
+const GOLD_SHADOW = '0 2px 8px rgba(0,0,0,0.9), 0 0 20px rgba(212,175,55,0.5)';
+
+function getPriceTierLabel(price?: number): { label: string; style: string } | null {
+  if (!price) return null;
+  if (price < 100000) return { label: '입문용', style: 'bg-emerald-700/80 text-white' };
+  if (price < 300000) return { label: '미들급', style: 'bg-amber-700/80 text-white' };
+  return { label: '하이엔드', style: 'bg-gradient-to-r from-amber-800 to-yellow-600 text-white' };
+}
 
 function getQuadrantDesc(x: number, y: number): string {
-  if (x < -0.2 && y > 0.2) return '피티 · 묵직 — 아일라 스타일';
-  if (x > 0.2 && y > 0.2)  return '달콤 · 풀바디 — 셰리/버번 스타일';
+  if (x < -0.2 && y > 0.2)  return '피티 · 묵직 — 아일라 스타일';
+  if (x > 0.2 && y > 0.2)   return '달콤 · 풀바디 — 셰리/버번 스타일';
   if (x < -0.2 && y < -0.2) return '피티 · 섬세 — 로우랜드 피트';
   if (x > 0.2 && y < -0.2)  return '산뜻 · 가벼운 — 하이볼 스타일';
   return '밸런스 — 중심부 복합 풍미';
@@ -38,12 +49,11 @@ export function FlavorMap({ whiskeys, userPosition }: FlavorMapProps) {
   return (
     <div className="space-y-2">
       <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-        <div className="absolute inset-0 rounded-lg overflow-hidden"
-          style={{
-            background: 'radial-gradient(ellipse at 40% 50%, #1a1f0e 0%, #0d1008 60%, #080b05 100%)',
-          }}
+        <div
+          className="absolute inset-0 rounded-lg overflow-hidden"
+          style={{ background: 'radial-gradient(ellipse at 40% 50%, #1a1f0e 0%, #0d1008 60%, #080b05 100%)' }}
         >
-          {/* Noise */}
+          {/* Noise texture */}
           <svg width="0" height="0" className="absolute" aria-hidden="true">
             <defs>
               <filter id="map-noise">
@@ -54,8 +64,13 @@ export function FlavorMap({ whiskeys, userPosition }: FlavorMapProps) {
               </filter>
             </defs>
           </svg>
-          <div className="absolute inset-0 opacity-[0.06]"
-            style={{ filter: 'url(#map-noise)', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'300\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\'/%3E%3C/filter%3E%3Crect width=\'300\' height=\'300\' filter=\'url(%23n)\' opacity=\'1\'/%3E%3C/svg%3E")', backgroundSize: '300px 300px' }}
+          <div
+            className="absolute inset-0 opacity-[0.06]"
+            style={{
+              filter: 'url(#map-noise)',
+              backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
+              backgroundSize: '300px 300px',
+            }}
           />
 
           {/* Grid */}
@@ -65,42 +80,51 @@ export function FlavorMap({ whiskeys, userPosition }: FlavorMapProps) {
             <rect x="6%" y="6%" width="88%" height="88%" fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
           </svg>
 
-          {/* ── 사분면 레이블 ── */}
-          <div className="absolute top-[8%] left-[8%] text-[9px] md:text-[11px] text-white/30 font-mono leading-tight pointer-events-none">
-            <span className="block">🥃 피티·묵직</span>
-            <span className="block text-white/20">아일라 스타일</span>
+          {/* Quadrant labels with blur backdrop */}
+          <div className="absolute top-[8%] left-[8%] backdrop-blur-sm bg-black/40 rounded px-2 py-1.5 border border-white/5 pointer-events-none">
+            <span className="block text-[9px] md:text-[11px] text-white/70 font-mono leading-tight">🥃 피티·묵직</span>
+            <span className="block text-[8px] md:text-[10px] text-white/40 font-mono">아일라 스타일</span>
           </div>
-          <div className="absolute top-[8%] right-[8%] text-[9px] md:text-[11px] text-white/30 font-mono leading-tight pointer-events-none text-right">
-            <span className="block">🍯 달콤·풀바디</span>
-            <span className="block text-white/20">셰리/버번 스타일</span>
+          <div className="absolute top-[8%] right-[8%] backdrop-blur-sm bg-black/40 rounded px-2 py-1.5 border border-white/5 pointer-events-none text-right">
+            <span className="block text-[9px] md:text-[11px] text-white/70 font-mono leading-tight">🍯 달콤·풀바디</span>
+            <span className="block text-[8px] md:text-[10px] text-white/40 font-mono">셰리/버번 스타일</span>
           </div>
-          <div className="absolute bottom-[14%] left-[8%] text-[9px] md:text-[11px] text-white/30 font-mono leading-tight pointer-events-none">
-            <span className="block">🌿 피티·섬세</span>
-            <span className="block text-white/20">로우랜드 피트</span>
+          <div className="absolute bottom-[14%] left-[8%] backdrop-blur-sm bg-black/40 rounded px-2 py-1.5 border border-white/5 pointer-events-none">
+            <span className="block text-[9px] md:text-[11px] text-white/70 font-mono leading-tight">🌿 피티·섬세</span>
+            <span className="block text-[8px] md:text-[10px] text-white/40 font-mono">로우랜드 피트</span>
           </div>
-          <div className="absolute bottom-[14%] right-[8%] text-[9px] md:text-[11px] text-white/30 font-mono leading-tight pointer-events-none text-right">
-            <span className="block">🍋 산뜻·가벼운</span>
-            <span className="block text-white/20">하이볼 스타일</span>
+          <div className="absolute bottom-[14%] right-[8%] backdrop-blur-sm bg-black/40 rounded px-2 py-1.5 border border-white/5 pointer-events-none text-right">
+            <span className="block text-[9px] md:text-[11px] text-white/70 font-mono leading-tight">🍋 산뜻·가벼운</span>
+            <span className="block text-[8px] md:text-[10px] text-white/40 font-mono">하이볼 스타일</span>
           </div>
 
-          {/* Axis labels */}
-          <div className="absolute left-2 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] md:text-xs text-white/25 font-mono tracking-widest uppercase whitespace-nowrap pointer-events-none">
+          {/* Gold axis labels */}
+          <div
+            className="absolute left-2 top-1/2 -translate-y-1/2 -rotate-90 text-[10px] md:text-xs font-mono font-bold tracking-widest uppercase whitespace-nowrap pointer-events-none"
+            style={{ color: GOLD, textShadow: GOLD_SHADOW }}
+          >
             묵직 · 강렬
           </div>
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 rotate-90 text-[10px] md:text-xs text-white/25 font-mono tracking-widest uppercase whitespace-nowrap pointer-events-none">
+          <div
+            className="absolute right-2 top-1/2 -translate-y-1/2 rotate-90 text-[10px] md:text-xs font-mono font-bold tracking-widest uppercase whitespace-nowrap pointer-events-none"
+            style={{ color: GOLD, textShadow: GOLD_SHADOW }}
+          >
             가볍 · 섬세
           </div>
-          <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] md:text-xs text-white/25 font-mono tracking-widest uppercase pointer-events-none">
+          <div
+            className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] md:text-xs font-mono font-bold tracking-widest uppercase pointer-events-none"
+            style={{ color: GOLD, textShadow: GOLD_SHADOW }}
+          >
             ← 피티 · 스모키 &nbsp;&nbsp;&nbsp; 달콤 · 과일 →
           </div>
 
           {/* Whiskey dots */}
           {whiskeys.map((w, i) => {
             const isMatch = w.rank !== undefined;
-            const color = isMatch ? MATCH_COLOR : 'rgba(255,255,255,0.32)';
-            const size = isMatch ? 13 : 7;
+            const dotColor = isMatch ? MATCH_COLOR : 'rgba(255,255,255,0.32)';
+            const dotSize = isMatch ? 22 : 7;
             const isHovered = hovered === w.id;
-            const quadrant = getQuadrantDesc(w.x, w.y);
+            const priceTier = getPriceTierLabel(w.price);
 
             return (
               <motion.div
@@ -113,36 +137,48 @@ export function FlavorMap({ whiskeys, userPosition }: FlavorMapProps) {
                 onMouseEnter={() => setHovered(w.id)}
                 onMouseLeave={() => setHovered(null)}
               >
-                {/* Glow ring for matches */}
-                {isMatch && (
+                {/* Pulse rings for recommended dots */}
+                {isMatch && [1, 2, 3].map(r => (
                   <motion.div
+                    key={r}
                     className="absolute rounded-full"
-                    style={{ backgroundColor: color, width: size + 10, height: size + 10, left: -(size + 10) / 2 + size / 2, top: -(size + 10) / 2 + size / 2 }}
-                    animate={{ opacity: [0.15, 0.4, 0.15], scale: [1, 1.5, 1] }}
-                    transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: (w.rank ?? 0) * 0.4 }}
+                    style={{
+                      border: `1.5px solid ${MATCH_COLOR}`,
+                      width: dotSize + r * 14,
+                      height: dotSize + r * 14,
+                      left: -r * 7,
+                      top: -r * 7,
+                    }}
+                    animate={{ opacity: [0.5, 0, 0.5], scale: [0.9, 1.2, 0.9] }}
+                    transition={{
+                      duration: 2.5,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                      delay: r * 0.5 + (w.rank ?? 0) * 0.3,
+                    }}
                   />
-                )}
+                ))}
 
                 {/* Dot */}
                 <motion.div
                   className="rounded-full relative"
                   style={{
-                    width: size,
-                    height: size,
-                    backgroundColor: color,
+                    width: dotSize,
+                    height: dotSize,
+                    backgroundColor: dotColor,
                     boxShadow: isMatch
-                      ? `0 0 ${isHovered ? 20 : 8}px ${color}, 0 0 ${isHovered ? 40 : 16}px ${color}55`
-                      : isHovered ? `0 0 8px rgba(255,255,255,0.6)` : 'none',
+                      ? `0 0 10px ${MATCH_COLOR}, 0 0 20px ${MATCH_COLOR}66, 0 0 32px ${MATCH_COLOR}33`
+                      : isHovered
+                      ? '0 0 8px rgba(255,255,255,0.6)'
+                      : 'none',
                   }}
-                  animate={{ scale: isHovered ? 1.6 : 1 }}
+                  animate={{ scale: isHovered ? 1.4 : 1 }}
                   transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                 />
 
-                {/* 추천 위스키 이름 레이블 */}
+                {/* Recommended label (visible when not hovered) */}
                 {isMatch && !isHovered && (
-                  <div
-                    className="absolute -top-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-px pointer-events-none"
-                  >
+                  <div className="absolute -top-7 left-1/2 -translate-x-1/2 flex flex-col items-center gap-px pointer-events-none">
                     <span
                       className="text-[7px] font-bold font-mono tracking-wide whitespace-nowrap leading-none"
                       style={{ color: MATCH_COLOR }}
@@ -158,20 +194,53 @@ export function FlavorMap({ whiskeys, userPosition }: FlavorMapProps) {
                   </div>
                 )}
 
-                {/* Hover tooltip */}
+                {/* Hover tooltip card */}
                 <AnimatePresence>
                   {isHovered && (
                     <motion.div
-                      className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
-                      initial={{ opacity: 0, y: 4 }}
+                      className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+                      initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 4 }}
+                      exit={{ opacity: 0, y: 6 }}
                       transition={{ duration: 0.15 }}
                     >
-                      <div className="bg-stone-900/95 border border-white/10 rounded px-2.5 py-2 text-center shadow-xl backdrop-blur-sm whitespace-nowrap">
-                        <p className="text-white text-[11px] font-semibold leading-tight">{w.name}</p>
-                        <p className="text-white/50 text-[10px] font-mono">ABV {w.abv}%</p>
-                        <p className="text-white/40 text-[9px] mt-0.5 font-light">{quadrant}</p>
+                      <div
+                        className="rounded-lg shadow-2xl backdrop-blur-sm overflow-hidden border border-white/10"
+                        style={{ width: 160, background: 'rgba(15,12,8,0.97)' }}
+                      >
+                        {w.image ? (
+                          <div
+                            className="h-28 flex items-center justify-center"
+                            style={{ background: 'linear-gradient(to bottom, #0a0805, #1a1208)' }}
+                          >
+                            <img
+                              src={`/images/whiskey/${w.image}`}
+                              alt={w.name}
+                              className="h-24 w-auto object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]"
+                            />
+                          </div>
+                        ) : (
+                          <div className="h-12 bg-stone-900/60" />
+                        )}
+                        <div className="px-3 py-2.5">
+                          <p className="text-white text-[11px] font-semibold leading-tight mb-1.5">{w.name}</p>
+                          <div className="flex items-center gap-1 flex-wrap mb-1.5">
+                            {w.simPct !== undefined && (
+                              <span
+                                className="text-[9px] font-bold px-1.5 py-0.5 rounded"
+                                style={{ backgroundColor: MATCH_COLOR + '33', color: MATCH_COLOR }}
+                              >
+                                매칭 {w.simPct}%
+                              </span>
+                            )}
+                            {priceTier && (
+                              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${priceTier.style}`}>
+                                {priceTier.label}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-white/40 text-[9px] font-mono">ABV {w.abv}%</p>
+                        </div>
                       </div>
                     </motion.div>
                   )}
@@ -180,7 +249,7 @@ export function FlavorMap({ whiskeys, userPosition }: FlavorMapProps) {
             );
           })}
 
-          {/* User position */}
+          {/* User position marker */}
           <motion.div
             className="absolute -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none"
             style={{ left: toP(userPosition.x), top: toP(-userPosition.y) }}
@@ -208,7 +277,7 @@ export function FlavorMap({ whiskeys, userPosition }: FlavorMapProps) {
         </div>
       </div>
 
-      {/* 범례 */}
+      {/* Legend */}
       <div className="flex items-center gap-5 px-1 py-1.5 justify-end">
         <span className="flex items-center gap-1.5 text-[10px] text-white/35 font-mono">
           <span className="w-2 h-2 rounded-full bg-white/30 shrink-0 inline-block" />
@@ -224,7 +293,7 @@ export function FlavorMap({ whiskeys, userPosition }: FlavorMapProps) {
         </span>
       </div>
 
-      {/* 위치 해석 배너 */}
+      {/* Position interpretation banner */}
       <div className="flex items-start gap-3 p-3 rounded-sm bg-stone-950/60 border border-white/5">
         <div className="w-2 h-2 rounded-full bg-amber-400 shrink-0 mt-1" style={{ boxShadow: '0 0 6px #fbbf24' }} />
         <div>
