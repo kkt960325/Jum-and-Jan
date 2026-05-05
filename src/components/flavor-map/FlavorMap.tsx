@@ -214,13 +214,15 @@ export function FlavorMap({ whiskeys, userPosition }: FlavorMapProps) {
                             style={{ background: 'linear-gradient(to bottom, #0a0805, #1a1208)' }}
                           >
                             <img
-                              src={`/images/whiskey/${w.image}`}
+                              src={w.image}
                               alt={w.name}
                               className="h-24 w-auto object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]"
                             />
                           </div>
                         ) : (
-                          <div className="h-12 bg-stone-900/60" />
+                          <div className="h-14 flex items-center justify-center bg-stone-900/60">
+                            <span className="text-2xl opacity-40">🥃</span>
+                          </div>
                         )}
                         <div className="px-3 py-2.5">
                           <p className="text-white text-[11px] font-semibold leading-tight mb-1.5">{w.name}</p>

@@ -38,9 +38,8 @@ for chunk in chunks[1:]:  # skip preamble before first entry
 
     img_m = re.search(r"image:\s*'([^']+)'", chunk)
     if not img_m:
-        print(f'  ⚠  NO IMAGE FIELD : {wid}')
+        # Missing image is intentional (wrong-brand proxy removed) — not an error
         no_image += 1
-        errors += 1
         continue
 
     img_rel = img_m.group(1)  # e.g. /images/ardbeg-10.jpg
@@ -49,8 +48,9 @@ for chunk in chunks[1:]:  # skip preamble before first entry
         print(f'  ❌ FILE NOT FOUND : {wid} → {img_rel}')
         errors += 1
 
+with_img = total - no_image
 if errors == 0:
-    print(f'✅  모든 {total}개 위스키 이미지 검증 완료 — 오류 없음')
+    print(f'✅  이미지 파일 검증 완료 — {with_img}개 이미지 있음 / {no_image}개 그라디언트 플레이스홀더 / 파일 누락 없음')
 else:
-    print(f'\n⛔  {errors}개 오류 (이미지 필드 누락 {no_image}개) / 전체 {total}개')
+    print(f'\n⛔  {errors}개 파일 누락 오류 / 전체 {total}개')
     sys.exit(1)
