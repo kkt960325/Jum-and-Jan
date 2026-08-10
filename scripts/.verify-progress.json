@@ -1,0 +1,56 @@
+{
+  "processedIds": [
+    "johnnie-walker-blue",
+    "springbank-cv",
+    "johnnie-walker-gold",
+    "springbank-25"
+  ],
+  "outcomes": [
+    {
+      "id": "johnnie-walker-blue",
+      "name": "조니워커 블루 라벨",
+      "origUrl": "https://upload.wikimedia.org/wikipedia/commons/8/8d/Johnnie_Walker_Blue_Label_-_promotional_bottle_-_Suvarnabhumi_Airport.JPG?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "verdict": "verified",
+      "verifyResult": {
+        "is_bottle": true,
+        "label_match": "yes",
+        "quality_ok": true,
+        "detected_text": "JOHNNIE WALKER Blue Label King George",
+        "reject_reason": ""
+      }
+    },
+    {
+      "id": "springbank-cv",
+      "name": "스프링뱅크 CV",
+      "origUrl": "https://caskcartel.com/cdn/shop/products/19883_big.jpg?v=1675852538&width=1214",
+      "verdict": "error",
+      "errorMsg": "{\"error\":{\"code\":503,\"message\":\"This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.\",\"status\":\"UNAVAILABLE\"}}"
+    },
+    {
+      "id": "johnnie-walker-gold",
+      "name": "조니워커 골드 라벨 18년",
+      "origUrl": "https://upload.wikimedia.org/wikipedia/commons/c/c5/Johnnie_Walker_Gold_Label_18-Year.jpg",
+      "verdict": "verified",
+      "verifyResult": {
+        "is_bottle": true,
+        "label_match": "yes",
+        "quality_ok": true,
+        "detected_text": "JOHNNIE WALKER GOLD LABEL",
+        "reject_reason": ""
+      }
+    },
+    {
+      "id": "springbank-25",
+      "name": "스프링뱅크 25년",
+      "origUrl": "https://img.thewhiskyexchange.com/l/sprob.25yov20.jpg",
+      "verdict": "verified",
+      "verifyResult": {
+        "is_bottle": true,
+        "label_match": "yes",
+        "quality_ok": true,
+        "detected_text": "SPRINGBANK AGED 25 YEARS",
+        "reject_reason": ""
+      }
+    }
+  ]
+}

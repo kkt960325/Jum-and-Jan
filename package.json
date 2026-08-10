@@ -3,17 +3,26 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "predev": "npx tsx scripts/generate-images-manifest.ts",
     "dev": "next dev",
-    "prebuild": "python3 scripts/verify-images.py",
+    "prebuild": "npx tsx scripts/generate-images-manifest.ts && python3 scripts/verify-images.py",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "verify:images": "python3 scripts/verify-images.py",
-    "audit": "python3 scripts/audit-report.py"
+    "audit": "python3 scripts/audit-report.py",
+    "seed:supabase": "npx tsx scripts/seed-supabase.ts",
+    "hunt:images": "npx tsx scripts/hunt-images.ts",
+    "hunt:whiskybase": "npx tsx scripts/hunt-whiskybase.ts",
+    "verify:images:vision": "npx tsx scripts/verify-images.ts",
+    "verify:images:vision:priority": "npx tsx scripts/verify-images.ts -- --priority-only",
+    "verify:images:vision:dry": "npx tsx scripts/verify-images.ts -- --dry-run"
   },
   "dependencies": {
     "@capacitor/browser": "^8.0.3",
     "@capacitor/core": "^8.3.1",
+    "@google/genai": "^1.52.0",
+    "@supabase/supabase-js": "^2.105.3",
     "framer-motion": "^12.38.0",
     "lucide-react": "^1.8.0",
     "next": "16.2.4",
@@ -28,7 +37,9 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "puppeteer": "^25.0.4",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

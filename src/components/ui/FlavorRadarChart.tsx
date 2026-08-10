@@ -12,20 +12,22 @@ export function FlavorRadarChart({ whiskey, food }: FlavorRadarChartProps) {
   const hasMatch = (arr: string[], keywords: string[]) => 
     arr.some(item => keywords.some(k => item.toLowerCase().includes(k)));
 
-  // Generate deterministic mock scores (0-100) based on profiles
-  const wSweet = hasMatch(whiskey.taste, ['sweet']) ? 80 : (hasMatch(whiskey.aroma, ['vanilla', 'honey']) ? 60 : 30);
-  const wSmoke = hasMatch(whiskey.taste, ['smoky', 'medicinal']) || hasMatch(whiskey.aroma, ['smoke', 'peat']) ? 95 : 15;
-  const wSpice = hasMatch(whiskey.taste, ['spicy']) || hasMatch(whiskey.aroma, ['spice']) ? 75 : 20;
-  const wUmami = hasMatch(whiskey.taste, ['rich']) ? 75 : 35; 
-  const wFruit = hasMatch(whiskey.aroma, ['fruit', 'citrus', 'peach', 'dried fruit']) ? 85 : 25;
-  const wWoody = hasMatch(whiskey.aroma, ['oak']) || hasMatch(whiskey.taste, ['nutty']) ? 85 : 40;
+  const floor = (v: number) => Math.max(v, 30);
 
-  const fSweet = hasMatch(food.taste, ['sweet']) ? 80 : 25;
-  const fSmoke = hasMatch(food.aroma, ['smoke', 'roasted']) ? 85 : 10;
-  const fSpice = food.capsaicinLevel * 10 || (hasMatch(food.taste, ['pungent']) ? 80 : 15);
-  const fUmami = Math.min(100, (hasMatch(food.taste, ['umami', 'rich']) ? 70 : 30) + food.fermentationLevel * 3);
-  const fFruit = hasMatch(food.aroma, ['citrus']) ? 75 : 10;
-  const fWoody = hasMatch(food.aroma, ['grain', 'nutty', 'oil']) ? 65 : 20;
+  // Generate deterministic scores (0-100) — floor 30 prevents needle spikes
+  const wSweet = floor(hasMatch(whiskey.taste, ['sweet']) ? 80 : (hasMatch(whiskey.aroma, ['vanilla', 'honey']) ? 60 : 30));
+  const wSmoke = floor(hasMatch(whiskey.taste, ['smoky', 'medicinal']) || hasMatch(whiskey.aroma, ['smoke', 'peat']) ? 90 : 30);
+  const wSpice = floor(hasMatch(whiskey.taste, ['spicy']) || hasMatch(whiskey.aroma, ['spice']) ? 75 : 30);
+  const wUmami = floor(hasMatch(whiskey.taste, ['rich']) ? 75 : 40);
+  const wFruit = floor(hasMatch(whiskey.aroma, ['fruit', 'citrus', 'peach', 'dried fruit']) ? 85 : 30);
+  const wWoody = floor(hasMatch(whiskey.aroma, ['oak']) || hasMatch(whiskey.taste, ['nutty']) ? 85 : 40);
+
+  const fSweet = floor(hasMatch(food.taste, ['sweet']) ? 80 : 30);
+  const fSmoke = floor(hasMatch(food.aroma, ['smoke', 'roasted']) ? 80 : 30);
+  const fSpice = floor(food.capsaicinLevel * 10 || (hasMatch(food.taste, ['pungent']) ? 80 : 30));
+  const fUmami = floor(Math.min(100, (hasMatch(food.taste, ['umami', 'rich']) ? 70 : 35) + food.fermentationLevel * 3));
+  const fFruit = floor(hasMatch(food.aroma, ['citrus']) ? 75 : 30);
+  const fWoody = floor(hasMatch(food.aroma, ['grain', 'nutty', 'oil']) ? 65 : 30);
 
   const data = [
     { subject: '단맛 (Sweet)', whiskey: wSweet, food: fSweet, fullMark: 100 },

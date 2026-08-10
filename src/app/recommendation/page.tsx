@@ -2,19 +2,21 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { FlaskConical, GlassWater, Sparkles, Map, Zap, Microscope, ShoppingBag, CalendarCheck, Flame } from 'lucide-react';
-import { WHISKEY_DB } from '@/lib/data';
 import { WhiskeyPhotoCard } from '@/components/whiskey/WhiskeyPhotoCard';
 import { CompoundTags } from '@/components/ui/CompoundTags';
 import { FlavorMap, type MapWhiskey } from '@/components/flavor-map/FlavorMap';
 import { VectorRadarChart } from '@/components/ui/VectorRadarChart';
 import {
-  parseVector, serializeVector, getTopMatches, projectTo2D,
+  parseVector, serializeVector, projectTo2D,
   PROFILE_VECTORS, inferProfile, type FlavorVector,
 } from '@/lib/vector-engine';
 import { PROFILE_INFO } from '@/lib/constants';
 import { getPairingsV2, FOOD_CATEGORY_LABELS } from '@/lib/pairing-engine-v2';
 import type { PairingResult, AdventurousResult, PairingResultSet } from '@/lib/pairing-engine-v2';
-import type { FoodCategory } from '@/lib/food-db';
+import type { FoodCategory, FoodV2, DishType } from '@/lib/food-db';
+import { getTopWhiskeysByTier, getFlavorMapWhiskeys } from '@/lib/db/whiskey-repo';
+import { resolveWhiskeyImage } from '@/lib/utils';
+import { ScrollReset } from '@/components/ui/ScrollReset';
 
 const FOOD_DIM_LABELS = ['단맛','짠맛','신맛','매운','감칠','지방','텍스처'] as const;
 
@@ -55,7 +57,6 @@ function StepHeader({ n, icon, title, sub }: { n: number; icon: React.ReactNode;
 }
 
 // ─── Price tier helpers ─────────────────────────────────
-// entry: <10만원 / middle: 10~30만원 / high-end: 30만원+
 
 type PriceTier = 'entry' | 'middle' | 'high-end';
 
@@ -64,24 +65,6 @@ const PRICE_TIER_META: Record<PriceTier, { label: string; sublabel: string; styl
   'middle':   { label: '미들급',   sublabel: 'Middle · 10~30만원',   style: 'bg-amber-700 text-white',                            ring: '' },
   'high-end': { label: '하이엔드', sublabel: 'High-End · 30만원+',   style: 'bg-gradient-to-r from-amber-800 to-yellow-600 text-white', ring: 'ring-2 ring-yellow-600/30' },
 };
-
-function getTierMatches(
-  userVector: FlavorVector,
-  db: ReturnType<typeof WHISKEY_DB['slice']>,
-): Array<{ whiskey: (typeof db)[number]; similarity: number; tier: PriceTier }> {
-  const buckets: Record<PriceTier, typeof db> = { 'entry': [], 'middle': [], 'high-end': [] };
-  for (const w of db) {
-    const price = w.priceSimulation?.dailyShot ?? 70000;
-    if (price < 100000)       buckets['entry'].push(w);
-    else if (price < 300000)  buckets['middle'].push(w);
-    else                      buckets['high-end'].push(w);
-  }
-  return (['entry', 'middle', 'high-end'] as const).flatMap(tier => {
-    if (!buckets[tier].length) return [];
-    const [best] = getTopMatches(userVector, buckets[tier], 1);
-    return [{ whiskey: best.whiskey, similarity: best.similarity, tier }];
-  });
-}
 
 // ─── Food card helpers ──────────────────────────────────
 
@@ -104,7 +87,7 @@ function FoodPairingCard({ result, tierKey }: { result: PairingResult; tierKey: 
   const categoryLabel = FOOD_CATEGORY_LABELS[food.category as FoodCategory];
 
   return (
-    <Card className="flex flex-col relative overflow-hidden group hover:border-olive-900/30 transition-colors h-full">
+    <Card className="flex flex-col relative overflow-hidden group hover:border-olive-900/30 transition-colors h-full p-6">
       <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
         <FlaskConical className="w-6 h-6 text-olive-700" />
       </div>
@@ -142,7 +125,7 @@ function AdventurousCard({ result }: { result: AdventurousResult }) {
   const categoryLabel = FOOD_CATEGORY_LABELS[food.category as FoodCategory];
 
   return (
-    <Card className="flex flex-col relative overflow-hidden border-2 border-amber-900/20 bg-gradient-to-br from-stone-950/5 to-amber-900/5 h-full group hover:border-amber-700/30 transition-colors">
+    <Card className="flex flex-col relative overflow-hidden border-2 border-amber-900/20 bg-gradient-to-br from-stone-950/5 to-amber-900/5 h-full group hover:border-amber-700/30 transition-colors p-6">
       {/* flame bg decoration */}
       <div className="absolute top-0 right-0 p-3 opacity-10 group-hover:opacity-20 transition-opacity">
         <Flame className="w-6 h-6 text-amber-600" />
@@ -189,7 +172,7 @@ function WhiskeyPairingSection({
   simPct,
   rank,
 }: {
-  whiskey: ReturnType<typeof WHISKEY_DB['find']> & object;
+  whiskey: import('@/lib/data').Whiskey;
   pairings: PairingResultSet;
   simPct: number;
   rank: number;
@@ -235,24 +218,21 @@ export default async function Recommendation(props: { searchParams: Promise<{ v?
   const profileKey = inferProfile(userVector);
   const profile = PROFILE_INFO[profileKey] ?? PROFILE_INFO.sweet_heavy;
 
-  const topMatches = getTierMatches(userVector, WHISKEY_DB);
+  const [topMatches, mapWhiskeysBase] = await Promise.all([
+    getTopWhiskeysByTier(userVector),
+    getFlavorMapWhiskeys(),
+  ]);
+
   const allPairings = topMatches.map(({ whiskey, similarity }) => ({
     whiskey,
     similarity,
     pairings: getPairingsV2(whiskey),
   }));
 
-  const mapWhiskeys: MapWhiskey[] = WHISKEY_DB.map(w => {
-    const pos = projectTo2D(w.flavorVector);
+  const mapWhiskeys: MapWhiskey[] = mapWhiskeysBase.map(w => {
     const matchIdx = topMatches.findIndex(m => m.whiskey.id === w.id);
     return {
-      id: w.id,
-      name: w.name,
-      x: pos.x,
-      y: pos.y,
-      abv: w.abv,
-      image: w.image,
-      price: w.priceSimulation?.dailyShot,
+      ...w,
       ...(matchIdx >= 0 ? { rank: matchIdx, simPct: Math.round(topMatches[matchIdx].similarity * 100) } : {}),
     };
   });
@@ -260,6 +240,7 @@ export default async function Recommendation(props: { searchParams: Promise<{ v?
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-6xl animate-in fade-in duration-700">
+      <ScrollReset />
 
       {/* Profile Header */}
       <div className="text-center mb-16">
@@ -303,7 +284,7 @@ export default async function Recommendation(props: { searchParams: Promise<{ v?
                 className={`bg-white border border-olive-900/10 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col relative overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl ${priceMeta.ring}`}
               >
                 <WhiskeyPhotoCard
-                  image={whiskey.image}
+                  image={resolveWhiskeyImage(whiskey.id, whiskey.image)}
                   name={whiskey.name}
                   tierLabel={priceMeta.label}
                   tierSublabel={priceMeta.sublabel}

@@ -1,14 +1,16 @@
 import { notFound } from 'next/navigation';
 import { BackButton } from '@/components/ui/BackButton';
-import { WHISKEY_DB } from '@/lib/data';
+import { WHISKEY_DB } from '@/lib/data-static';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { GlassWater, BookOpen, Quote, Sparkles, TrendingDown, Lightbulb, BadgePercent } from 'lucide-react';
 import Link from 'next/link';
 import { PersonalTastingNote } from '@/components/whiskey/PersonalTastingNote';
 import { ChannelLink } from '@/components/whiskey/ChannelLink';
-import { getDeepLink } from '@/lib/utils';
+import { getDeepLink, resolveWhiskeyImage } from '@/lib/utils';
 import { parseVector, inferProfile, cosineSimilarity } from '@/lib/vector-engine';
+import { getWhiskeyById } from '@/lib/db/whiskey-repo';
+import type { Whiskey } from '@/lib/data';
 
 async function getExchangeRate() {
   try {
@@ -26,7 +28,17 @@ async function getExchangeRate() {
 export default async function WhiskeyDetail(props: { params: Promise<{ id: string }>, searchParams: Promise<{ profile?: string; v?: string }> }) {
   const params = await props.params;
   const searchParams = await props.searchParams;
-  const whiskey = WHISKEY_DB.find(w => w.id === params.id);
+
+  let whiskey: Whiskey | null = null;
+  try {
+    whiskey = await getWhiskeyById(params.id);
+  } catch (e) {
+    console.warn(`Database lookup failed for whiskey ${params.id}, falling back to static data.`, e);
+  }
+
+  if (!whiskey) {
+    whiskey = WHISKEY_DB.find(w => w.id === params.id) || null;
+  }
 
   if (!whiskey) {
     notFound();
@@ -68,6 +80,8 @@ export default async function WhiskeyDetail(props: { params: Promise<{ id: strin
     dynamicDrinkReason = "달콤하고 진득한 맛을 즐기시는군요. 얼음이 천천히 녹으며 달콤함이 부드럽게 풀리는 온더록스를 추천합니다.";
   }
 
+  const whiskeyImg = resolveWhiskeyImage(whiskey.id, whiskey.image);
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl animate-in fade-in duration-1000">
       
@@ -79,8 +93,8 @@ export default async function WhiskeyDetail(props: { params: Promise<{ id: strin
       <div className="flex flex-col md:flex-row gap-8 items-center md:items-start mb-12">
         {/* 검증된 이미지만 표시 (Cross-check: whiskey.image 필드 확인) */}
         <div className="p-8 bg-cream-200 rounded-2xl shadow-inner border border-brown-900/5 shrink-0 relative overflow-hidden">
-          {whiskey.image ? (
-            <img src={whiskey.image} alt={whiskey.name} className="w-32 h-32 object-cover rounded-xl" />
+          {whiskeyImg ? (
+            <img src={whiskeyImg} alt={whiskey.name} className="w-32 h-32 object-cover rounded-xl" />
           ) : (
             <GlassWater className="w-32 h-32 text-olive-700" />
           )}

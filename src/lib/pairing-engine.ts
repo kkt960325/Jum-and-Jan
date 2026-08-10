@@ -1,4 +1,5 @@
-import { Whiskey, Food, FOOD_DB } from './data';
+import { Whiskey, Food } from './data';
+import { FOOD_DB } from './data-static';
 
 export interface MatchResult {
   food: Food;
@@ -33,7 +34,7 @@ export class ScientificMatcher {
    */
   static calculateMatch(whiskey: Whiskey, food: Food): { score: number, reason: string } {
     let score = 0;
-    let reasons: string[] = [];
+    const reasons: string[] = [];
 
     // 1. Molecular Match (FlavorDB 기반 화합물 교집합)
     const sharedCompounds = whiskey.compounds.filter(c => food.compounds.includes(c));

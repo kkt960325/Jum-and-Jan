@@ -379,7 +379,13 @@ function buildStory(ctx: StoryContext): string {
     narrative = `[FlavorDB 분자 매칭] ${whiskey.name}과 ${food.name}이 공유하는 ${compoundPhrase} 향미 시너지의 교두보입니다.\n\n` + narrative;
   }
 
-  narrative += `\n\n위스키의 ${wLabel} 성분(${(whiskey.flavorVector[dominantWhiskeyDim] * 100).toFixed(0)}pt)이 ${food.name}의 ${fLabel} 벡터(${(food.foodVector[dominantFoodDim] * 100).toFixed(0)}pt)와 시너지 스코어 +${synergyScore.toFixed(2)}를 기록했습니다.`;
+  const safeWLabel = wLabel ?? WHISKEY_DIM_LABELS[0];
+  const safeFLabel = fLabel ?? FOOD_DIM_LABELS[0];
+  const _wvArr: number[] = Array.isArray(whiskey.flavorVector) && whiskey.flavorVector.length > 0 ? whiskey.flavorVector as number[] : [0,0,0,0,0,0,0];
+  const _fvArr: number[] = Array.isArray(food.foodVector) && food.foodVector.length > 0 ? food.foodVector as number[] : [0,0,0,0,0,0,0];
+  const wDimVal = _wvArr[dominantWhiskeyDim] ?? 0;
+  const fDimVal = _fvArr[dominantFoodDim] ?? 0;
+  narrative += `\n\n위스키의 ${safeWLabel} 성분(${Math.round(wDimVal * 100)}pt)이 ${food.name}의 ${safeFLabel} 벡터(${Math.round(fDimVal * 100)}pt)와 시너지 스코어 +${synergyScore.toFixed(2)}를 기록했습니다.`;
   return narrative;
 }
 
@@ -427,10 +433,12 @@ export function getPairingsV2(
     const seasonBoost = food.season?.includes(season) ? 0.4 : 0;
     const totalScore = synergyScore + compoundBonus + seasonBoost;
 
-    const wv = whiskey.flavorVector;
-    const fv = food.foodVector;
-    const dominantWhiskeyDim = wv.indexOf(Math.max(...wv));
-    const dominantFoodDim = fv.indexOf(Math.max(...fv));
+    const wv: number[] = Array.isArray(whiskey.flavorVector) && whiskey.flavorVector.length > 0 ? whiskey.flavorVector : [0,0,0,0,0,0,0];
+    const fv: number[] = Array.isArray(food.foodVector) && food.foodVector.length > 0 ? food.foodVector : [0,0,0,0,0,0,0];
+    const wMax = Math.max(...wv);
+    const fMax = Math.max(...fv);
+    const dominantWhiskeyDim = isFinite(wMax) && wMax > 0 ? Math.max(0, wv.indexOf(wMax)) : 0;
+    const dominantFoodDim = isFinite(fMax) && fMax > 0 ? Math.max(0, fv.indexOf(fMax)) : 0;
     const compoundShared = whiskey.compounds.filter(c => food.compounds.includes(c));
 
     const story = buildStory({ whiskey, food, dominantWhiskeyDim, dominantFoodDim, synergyScore: totalScore, compoundShared });

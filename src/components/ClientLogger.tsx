@@ -8,7 +8,7 @@ export function ClientLogger() {
     // To prevent infinite loops if fetch fails and logs an error
     let isSending = false;
 
-    const sendLog = async (level: string, args: any[]) => {
+    const sendLog = async (level: string, args: unknown[]) => {
       if (isSending) return;
       isSending = true;
       try {

@@ -18,28 +18,39 @@ const PRICE_CATEGORY_BADGE: Record<string, string> = {
   'high-end': 'bg-gradient-to-r from-amber-800 to-yellow-600 text-white',
 };
 
+// Low-res sources (small JPEG from third-party CDNs) get a subtle darkening
+// + contrast boost to hide compression artifacts on the dark card background.
+function isLowQuality(url: string): boolean {
+  return url.includes('caskcartel.com') && url.endsWith('.jpg') ||
+         url.endsWith('.jpg') && url.includes('bigcommerce.com');
+}
+
 export function WhiskeyPhotoCard({
   image, name, tierLabel, tierSublabel, tierStyle, priceCategory,
 }: Props) {
   const [open, setOpen] = useState(false);
+  const [imgFailed, setImgFailed] = useState(false);
 
   return (
     <>
       {/* ── Photo strip ── */}
       <div
         className="relative h-56 overflow-hidden shrink-0 cursor-zoom-in group/photo"
-        onClick={() => image && setOpen(true)}
+        onClick={() => image && !imgFailed && setOpen(true)}
       >
         {/* Background + bottle */}
         <div
           className="absolute inset-0 flex items-center justify-center overflow-hidden"
           style={{ background: 'linear-gradient(to bottom, #0a0805 0%, #1a1208 100%)' }}
         >
-          {image ? (
+          {image && !imgFailed ? (
             <img
               src={image}
               alt={name}
               className="absolute inset-0 w-full h-full object-contain object-center p-4 drop-shadow-[0_8px_24px_rgba(0,0,0,0.7)] transition-transform duration-500 group-hover/photo:scale-105"
+              loading="lazy" decoding="async"
+              onError={() => setImgFailed(true)}
+              style={isLowQuality(image) ? { filter: 'brightness(0.88) contrast(1.08) saturate(1.1)' } : undefined}
             />
           ) : (
             <>

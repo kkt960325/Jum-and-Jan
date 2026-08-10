@@ -1,0 +1,292 @@
+#!/usr/bin/env python3
+"""Build wb-mapping.json from collected WB IDs."""
+import json
+
+# All WB IDs collected via WebSearch
+WB_IDS = {
+    # === ISLAY (already in wb-mapping.json with image_url) ===
+    "ardbeg-10": 306,
+    "ardbeg-uigeadail": 331,
+    "ardbeg-an-oa": 99885,
+    "ardbeg-corryvreckan": 133030,
+    "ardbeg-wee-beastie": 152827,
+    "ardbeg-traigh-bhan": 252445,
+    "laphroaig-10": 178663,
+    "laphroaig-quarter-cask": 42887,
+    "laphroaig-triple-wood": 56046,
+    "laphroaig-select": 54930,
+    "laphroaig-lore": 93018,
+    "laphroaig-18": 42886,
+    "lagavulin-16": 51469,
+    "lagavulin-8": 78627,
+    "lagavulin-distillers-edition": 221001,
+    "lagavulin-25": 84086,
+    "bowmore-12": 180356,
+    "bowmore-15-darkest": 52022,
+    "bowmore-18": 262950,
+    "bowmore-no1": 92877,
+    "bowmore-25": 41290,
+    "caol-ila-12": 23,
+    "caol-ila-18": 47393,
+    "caol-ila-moch": 18907,
+    "caol-ila-distillers-edition": 220997,
+    "kilchoman-machir-bay": 157445,
+    "kilchoman-sanaig": 150543,
+    "kilchoman-loch-gorm": 272177,
+    "kilchoman-100-islay": 165678,
+    "bunnahabhain-12": 101495,
+    "bunnahabhain-18": 110419,
+    "bunnahabhain-staoisha": 108172,
+    "bruichladdich-classic-laddie": 77828,
+    "bruichladdich-islay-barley": 110105,
+    "port-charlotte-10": 170621,
+    "octomore-12": 170857,
+    "torabhaig-allt-gloro": 229231,
+
+    # === SPEYSIDE ===
+    "balvenie-12": 178765,
+    "balvenie-14-caribbean-cask": 208656,
+    "balvenie-15-single-barrel": 84989,
+    "balvenie-21-portwood": 141265,
+    "balvenie-25-triple": 117395,
+    "glenfiddich-12": 206635,
+    "glenfiddich-15": 98056,
+    "glenfiddich-18": 179496,
+    "glenfiddich-21-reserva": 223512,
+    "glenfiddich-30": 69,
+    "macallan-12": 113050,
+    "macallan-15-fine-oak": 271376,
+    "macallan-18-sherry": 161304,
+    "macallan-25": 21775,
+    "macallan-rare-cask": 232509,
+    "macallan-double-cask": 113054,
+    "glenlivet-12": 34224,
+    "glenlivet-15": 52261,
+    "glenlivet-18": 204663,
+    "glenlivet-21": 172848,
+    "glenlivet-founders-reserve": 177935,
+    "glenlivet-nadurra-first-fill": 159052,
+    "glenfarclas-12": 258751,
+    "glenfarclas-15": 226654,
+    "glenfarclas-21": 12248,
+    "glenfarclas-25": 140,
+    "glenfarclas-30": 4345,
+    "glenfarclas-40": 15943,
+    "glenfarclas-105": 281862,
+    "aberlour-12": 161049,
+    "aberlour-16": 46209,
+    "aberlour-18": 237131,
+    "aberlour-abunadh": 263289,
+    "benriach-12": 165513,
+    "benromach-10": 58640,
+    "glen-grant-10": 176018,
+    "glenmorangie-10": 663,
+    "glenmorangie-lasanta": 739,
+    "glenmorangie-quinta-ruban": 160236,
+    "glenmorangie-nectar-dor": 160235,
+    "glenmorangie-signet": 4067,
+    "glenmorangie-18": 243588,
+    "cardhu-12": 295863,
+    "mortlach-12": 117288,
+    "glenrothes-12": 118320,
+    "tamdhu-12": 114995,
+    "strathisla-12": 108679,
+    "speyburn-10": 112502,
+    "glen-moray-12": 88041,
+    "tamnavulin-double-cask": 118174,
+    "glenallachie-12": 248391,
+
+    # === HIGHLAND ===
+    "dalmore-12": 275797,
+    "dalmore-15": 36789,
+    "dalmore-18": 26663,
+    "dalmore-cigar-malt-reserve": 169006,
+    "dalmore-25": 45790,
+    "dalmore-king-alexander": 36788,
+    "highland-park-12": 128115,
+    "highland-park-18": 241613,
+    "highland-park-25": 226102,
+    "highland-park-viking-honour": 128115,
+    "highland-park-dragon-legend": 99873,
+    "talisker-10": 182815,
+    "talisker-storm": 205130,
+    "talisker-18": 121,
+    "talisker-25": 4182,
+    "glendronach-12": 9096,
+    "glendronach-15": 258051,
+    "glendronach-18": 258050,
+    "glendronach-21": 168828,
+    "oban-14": 39,
+    "oban-little-bay": 81079,
+    "oban-18": 187727,
+    "clynelish-14": 228847,
+    "old-pulteney-12": 35356,
+    "balblair-12": 128496,
+    "balblair-18": 128493,
+    "aberfeldy-12": 76497,
+    "glengoyne-10": 122547,
+    "glengoyne-18": 38137,
+    "dalwhinnie-15": 301,
+    "tomatin-12": 206080,
+    "arran-10": 232004,
+    "arran-18": 143180,
+    "scapa-skiren": 70740,
+
+    # === LOWLAND / ISLANDS ===
+    "auchentoshan-3w": 1884,
+    "glenkinchie-12": 36771,
+    "bladnoch-10": 113367,
+    "tobermory-10": 16332,
+    "ledaig-10": 151469,
+    "deanston-12": 83919,
+
+    # === CAMPBELTOWN ===
+    "springbank-10": 207089,
+    "springbank-15": 358,
+    "springbank-18": 102055,
+    "springbank-25": 125711,
+    "hazelburn-10": 57967,
+    "longrow-14": 113732,
+    "glen-scotia-double-cask": 62939,
+    "glen-scotia-15": 62940,
+    "kilkerran-12": 114102,
+
+    # === JAPANESE ===
+    "yamazaki-12": 148334,
+    "yamazaki-18": 232778,
+    "yamazaki-25": 80114,
+    "yamazaki-distillers-reserve": 234089,
+    "hakushu-12": 297651,
+    "hakushu-18": 232779,
+    "hakushu-distillers-reserve": 162293,
+    "hibiki-harmony": 188455,
+    "hibiki-21": 26795,
+    "nikka-from-the-barrel": 46370,
+    "nikka-coffey-grain": 36346,
+    "nikka-taketsuru-pure-malt": 280084,
+    "nikka-yoichi-single-malt": 140167,
+    "nikka-miyagikyo-single-malt": 72932,
+    "mars-komagatake": 200675,
+    "suntory-chita": 224322,
+    "ichiros-malt-grain": 152881,
+
+    # === AMERICAN BOURBON / RYE ===
+    "buffalo-trace": 34099,
+    "woodford-reserve": 211208,
+    "blantons-original": 15744,
+    "makers-mark": 242894,
+    "makers-46": 294957,
+    "four-roses-yellow": 181160,
+    "four-roses-single-barrel": 63736,
+    "wild-turkey-101": 203226,
+    "eagle-rare-10": 82103,
+    "jack-daniels-no7": 15863,
+    "elijah-craig-small-batch": 84031,
+    "knob-creek-9": 179778,
+    "jim-beam-white": 183080,
+    "jim-beam-black": 117320,
+    "woodford-double-oaked": 230929,
+    "bulleit-bourbon": 21342,
+    "bulleit-rye": 179707,
+    "old-forester-1920": 90839,
+    "whistlepig-10": 181836,
+    "evan-williams-black": 18760,
+    "high-west-rendezvous-rye": 20315,
+    "old-overholt-rye": 44504,
+    "angels-envy": 227689,
+    "colonel-eh-taylor-small-batch": 40710,
+
+    # === IRISH ===
+    "redbreast-12": 149078,
+    "redbreast-15": 134080,
+    "redbreast-21": 134096,
+    "redbreast-27": 149425,
+    "jameson": 225664,
+    "jameson-black-barrel": 86380,
+    "jameson-caskmates-ipa": 206347,
+    "green-spot": 31215,
+    "yellow-spot-12": 33205,
+    "teeling-small-batch": 66830,
+    "teeling-single-grain": 51844,
+    "bushmills-10": 179021,
+    "bushmills-original": 13375,
+    "connemara-peated": 223479,
+    "writers-tears-copper-pot": 191971,
+    "powers-gold-label": 172447,
+    "tullamore-dew-12": 129040,
+
+    # === BLENDED SCOTCH ===
+    "johnnie-walker-black": 206121,
+    "johnnie-walker-red": 57211,
+    "johnnie-walker-green": 109114,
+    "johnnie-walker-blue": 218342,
+    "johnnie-walker-double-black": 50624,
+    "johnnie-walker-gold": 164013,
+    "monkey-shoulder": 197833,
+    "chivas-12": 217672,
+    "chivas-18": 159230,
+    "chivas-25": 51613,
+    "ballantines-finest": 160928,
+    "ballantines-12": 95926,
+    "ballantines-17": 74466,
+    "ballantines-21": 50877,
+    "famous-grouse": 236043,
+    "famous-grouse-smoky-black": 72399,
+    "compass-box-hedonism": 88986,
+    "dewars-12": 61359,
+    "dewars-15": 238748,
+    "dewars-18": 252622,
+    "grants": 114832,
+    "royal-salute-21": 189128,
+
+    # === WORLD ===
+    "kavalan-classic": 180774,
+    "kavalan-solist-ex-bourbon": 39836,
+    "kavalan-solist-vinho": 207096,
+    "amrut-fusion": 13369,
+    "mackmyra-brukswhisky": 196450,
+    "sullivans-cove-double-cask": 228429,
+    "paul-john-classic-select": 53583,
+    "karuizawa-1985": 13654,
+    "stauning-peated": 165140,
+    "penderyn-madeira": 107842,
+    "starward-two-fold": 180362,
+    "midleton-very-rare": 248954,
+}
+
+# Load existing wb-mapping.json (which has Islay image_url data)
+with open('/sessions/sweet-serene-cerf/mnt/whisky-hansik-pairing/wb-mapping.json') as f:
+    existing = json.load(f)
+
+# Build lookup of existing data
+existing_map = {w['id']: w for w in existing['whiskies']}
+
+# Build the new whiskies list
+whiskies = []
+for app_id, wb_id in WB_IDS.items():
+    if app_id in existing_map:
+        # Keep existing data (which has image_url for Islay)
+        entry = existing_map[app_id].copy()
+    else:
+        # New entry
+        entry = {
+            "id": app_id,
+            "wb_id": wb_id,
+            "image_url": None
+        }
+    whiskies.append(entry)
+
+result = {
+    "generated": "2026-08-10",
+    "note": "Whiskybase ID mapping for 점과 잔 app. Run scripts/fetch-wb-images.mjs locally to populate image_url fields.",
+    "wb_id_count": len([w for w in whiskies if w.get('wb_id')]),
+    "image_url_count": len([w for w in whiskies if w.get('image_url')]),
+    "whiskies": whiskies
+}
+
+with open('/sessions/sweet-serene-cerf/mnt/whisky-hansik-pairing/wb-mapping.json', 'w') as f:
+    json.dump(result, f, indent=2, ensure_ascii=False)
+
+print(f"Written {len(whiskies)} entries")
+print(f"With WB IDs: {result['wb_id_count']}")
+print(f"With image URLs: {result['image_url_count']}")

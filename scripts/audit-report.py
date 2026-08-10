@@ -4,7 +4,7 @@ Pre-deployment pairing audit.
 Picks 10 random whiskeys, shows 4 pairings each + image status.
 Run: python3 scripts/audit-report.py [--seed N]
 """
-import re, os, math, random, argparse
+import re, os, math, random, argparse, json
 from datetime import date
 
 # ─── CLI ────────────────────────────────────────────────────────────────────
@@ -16,8 +16,8 @@ SEED = args.seed if args.seed is not None else int(date.today().strftime('%Y%m%d
 random.seed(SEED)
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_TS   = os.path.join(PROJECT_ROOT, 'src/lib/data.ts')
-FOOD_TS   = os.path.join(PROJECT_ROOT, 'src/lib/food-db.ts')
+DATA_TS   = os.path.join(PROJECT_ROOT, 'src/lib/data-static.ts')
+FOOD_JSON = os.path.join(PROJECT_ROOT, 'src/lib/foods.json')
 PUBLIC    = os.path.join(PROJECT_ROOT, 'public')
 
 # ─── Parse helpers ──────────────────────────────────────────────────────────
@@ -54,27 +54,17 @@ def parse_whiskeys(path):
     return whiskeys
 
 def parse_foods(path):
-    content = open(path, encoding='utf-8').read()
-    db_start = content.find('export const FOOD_DB_V2')
-    section  = content[db_start:]
-    chunks   = re.split(r'\n\s+\{(?=\s*\n?\s*id:)', section)
+    with open(path, encoding='utf-8') as f:
+        data = json.load(f)
     foods = []
-    for chunk in chunks[1:]:
-        id_m    = re.search(r"id:\s*'([^']+)'", chunk)
-        name_m  = re.search(r"name:\s*'([^']+)'", chunk)
-        tier_m  = re.search(r"tier:\s*'([^']+)'", chunk)
-        vec_m   = re.search(r'foodVector:\s*(\[[^\]]+\])', chunk)
-        comp_m  = re.search(r'compounds:\s*\[([^\]]+)\]', chunk)
-        dtype_m = re.search(r"dishType:\s*'([^']+)'", chunk)
-        if not (id_m and name_m and tier_m and vec_m): continue
-        compounds = re.findall(r"'([^']+)'", comp_m.group(1)) if comp_m else []
+    for row in data:
         foods.append({
-            'id':        id_m.group(1),
-            'name':      name_m.group(1),
-            'tier':      tier_m.group(1),
-            'foodVector': extract_float_list(vec_m.group(0)),
-            'compounds': compounds,
-            'dishType':  dtype_m.group(1) if dtype_m else '',
+            'id':        row['id'],
+            'name':      row['name'],
+            'tier':      row['tier'],
+            'foodVector': row['foodVector'],
+            'compounds':  row['compounds'],
+            'dishType':  row.get('dishType', ''),
         })
     return foods
 
@@ -144,7 +134,7 @@ def img_status(whiskey):
 
 # ─── Main ────────────────────────────────────────────────────────────────────
 whiskeys = parse_whiskeys(DATA_TS)
-foods    = parse_foods(FOOD_TS)
+foods    = parse_foods(FOOD_JSON)
 
 sample = random.sample(whiskeys, 10)
 

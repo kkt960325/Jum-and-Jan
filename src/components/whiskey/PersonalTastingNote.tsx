@@ -32,14 +32,17 @@ export function PersonalTastingNote({ whiskeyId }: PersonalTastingNoteProps) {
 
   // Load note from localStorage on mount
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsMounted(true);
     const savedNote = localStorage.getItem(`tasting_note_${whiskeyId}`);
     if (savedNote) {
       try {
         const parsed = JSON.parse(savedNote);
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setNoteData(parsed);
       } catch (e) {
         // Fallback for previous simple string format
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setNoteData({ ...initialNote, overall: savedNote });
       }
     }
