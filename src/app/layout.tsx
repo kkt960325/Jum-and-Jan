@@ -69,6 +69,9 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "점과 잔",
   },
+  verification: {
+    google: "uDpknjy2mJaF_MC2B_CLfXGEFoOAmOR4IchInQ99sM8",
+  },
   formatDetection: {
     telephone: false,
   },
