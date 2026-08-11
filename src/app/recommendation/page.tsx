@@ -16,6 +16,7 @@ import type { PairingResult, AdventurousResult, PairingResultSet } from '@/lib/p
 import type { FoodCategory, FoodV2, DishType } from '@/lib/food-db';
 import { getTopWhiskeysByTier, getFlavorMapWhiskeys } from '@/lib/db/whiskey-repo';
 import { resolveWhiskeyImage } from '@/lib/utils';
+import { getBatchWhiskybaseImageUrls } from '@/lib/whiskybase-image';
 import { ScrollReset } from '@/components/ui/ScrollReset';
 
 const FOOD_DIM_LABELS = ['단맛','짠맛','신맛','매운','감칠','지방','텍스처'] as const;
@@ -223,6 +224,9 @@ export default async function Recommendation(props: { searchParams: Promise<{ v?
     getFlavorMapWhiskeys(),
   ]);
 
+  // Whiskybase 이미지 병렬 조회 (추천 3개)
+  const wbImages = await getBatchWhiskybaseImageUrls(topMatches.map(m => m.whiskey.id));
+
   const allPairings = topMatches.map(({ whiskey, similarity }) => ({
     whiskey,
     similarity,
@@ -284,7 +288,7 @@ export default async function Recommendation(props: { searchParams: Promise<{ v?
                 className={`bg-white border border-olive-900/10 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] flex flex-col relative overflow-hidden transition-all hover:-translate-y-1 hover:shadow-xl ${priceMeta.ring}`}
               >
                 <WhiskeyPhotoCard
-                  image={resolveWhiskeyImage(whiskey.id, whiskey.image)}
+                  image={wbImages[whiskey.id] ?? resolveWhiskeyImage(whiskey.id, whiskey.image)}
                   name={whiskey.name}
                   tierLabel={priceMeta.label}
                   tierSublabel={priceMeta.sublabel}

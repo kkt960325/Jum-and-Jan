@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { PersonalTastingNote } from '@/components/whiskey/PersonalTastingNote';
 import { ChannelLink } from '@/components/whiskey/ChannelLink';
 import { getDeepLink, resolveWhiskeyImage } from '@/lib/utils';
+import { getWhiskybaseImageUrl } from '@/lib/whiskybase-image';
 import { parseVector, inferProfile, cosineSimilarity } from '@/lib/vector-engine';
 import { getWhiskeyById } from '@/lib/db/whiskey-repo';
 import type { Whiskey } from '@/lib/data';
@@ -80,7 +81,8 @@ export default async function WhiskeyDetail(props: { params: Promise<{ id: strin
     dynamicDrinkReason = "달콤하고 진득한 맛을 즐기시는군요. 얼음이 천천히 녹으며 달콤함이 부드럽게 풀리는 온더록스를 추천합니다.";
   }
 
-  const whiskeyImg = resolveWhiskeyImage(whiskey.id, whiskey.image);
+  const wbImageUrl = await getWhiskybaseImageUrl(whiskey.id);
+  const whiskeyImg = wbImageUrl ?? resolveWhiskeyImage(whiskey.id, whiskey.image);
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl animate-in fade-in duration-1000">

@@ -35,12 +35,39 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Jum & Jan | Whiskey-Hansik Pairing",
-  description: "최고의 위스키와 한식의 완벽한 페어링을 제안합니다.",
+  title: {
+    default: "점과 잔 | 위스키 × 한식 페어링",
+    template: "%s | 점과 잔",
+  },
+  description: "점과 잔 — 내 취향 벡터로 찾는 위스키 × 한식 완벽 페어링. 229종 위스키 중 나에게 꼭 맞는 한 병을 찾아보세요.",
+  keywords: ["점과 잔", "위스키 한식 페어링", "위스키 추천", "한식 안주", "위스키 취향 테스트", "점과잔"],
+  authors: [{ name: "점과 잔" }],
+  creator: "점과 잔",
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    url: "https://jum-and-jan.vercel.app",
+    siteName: "점과 잔",
+    title: "점과 잔 | 위스키 × 한식 페어링",
+    description: "내 취향 벡터로 찾는 위스키 × 한식 완벽 페어링. 229종 위스키 중 나에게 꼭 맞는 한 병을 찾아보세요.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "점과 잔 | 위스키 × 한식 페어링",
+    description: "내 취향 벡터로 찾는 위스키 × 한식 완벽 페어링.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Jum & Jan",
+    title: "점과 잔",
   },
   formatDetection: {
     telephone: false,

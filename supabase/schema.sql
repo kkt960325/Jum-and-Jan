@@ -132,3 +132,20 @@ as $$
   select id, name, abv, image, price_daily_shot, x_pos, y_pos
   from whiskeys
 $$;
+
+-- ─── Whiskybase 이미지 캐시 테이블 ───────────────────────────
+create table if not exists whisky_images (
+  wb_id       integer primary key,
+  whiskey_id  text,                        -- 앱 내 위스키 ID (e.g. 'bowmore-25')
+  image_url   text not null,               -- https://static.whiskybase.com/...
+  fetched_at  timestamptz default now()
+);
+
+-- RLS: anon read (이미지 URL은 공개 정보)
+alter table whisky_images enable row level security;
+create policy "public read whisky_images"
+  on whisky_images for select to anon using (true);
+create policy "service insert whisky_images"
+  on whisky_images for insert to anon with check (true);
+create policy "service update whisky_images"
+  on whisky_images for update to anon using (true);
